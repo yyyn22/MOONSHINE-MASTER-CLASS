@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>IF OFFICE | MOONSHINE</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+TC:wght@300;500;700&family=Space+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+  :root {
+    --if-blue: #003399; 
+    --if-blue-dark: #002266;
+    --gold: #d4af37;
+    --magic-glow: rgba(0, 51, 153, 0.4);
+    --white: #ffffff;
+    --bg-light: #f4f6f8;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: var(--bg-light);
+    /* 格線背景，增加設計感 */
+    background-image: 
+      linear-gradient(rgba(0, 51, 153, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 51, 153, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    font-family: 'Noto Serif TC', serif;
+    margin: 0;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+
+  /* 標題樣式 */
+  .brand-header {
+    margin-bottom: 40px;
+    text-align: center;
+    padding: 0 20px;
+    z-index: 1;
+  }
+  .brand-title {
+    font-family: 'Cinzel', serif;
+    font-size: 2.5rem;
+    color: var(--if-blue);
+    letter-spacing: 0.2em;
+    margin: 0;
+    font-weight: 700;
+  }
+  .brand-subtitle {
+    font-size: 0.8rem;
+    letter-spacing: 0.5em;
+    color: var(--if-blue);
+    opacity: 0.6;
+    margin-top: 8px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* --- 手牌區域 --- */
+  .hand-area {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .card-wrapper {
+    position: absolute;
+    width: 210px; 
+    height: 320px;
+    transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+    cursor: pointer;
+    perspective: 1200px;
+    bottom: 50px;
+  }
+
+  .card-wrapper--1 { transform: translateX(-160px) rotate(-12deg); }
+  .card-wrapper--2 { transform: translateX(0) rotate(0deg) translateY(-25px); }
+  .card-wrapper--3 { transform: translateX(160px) rotate(12deg); }
+
+  .card-wrapper:hover {
+    transform: translateY(-50px) scale(1.05) !important;
+    z-index: 10;
+  }
+
+  .card-wrapper.is-selected {
+    transform: translate(0, -20px) scale(1.15) rotate(0deg) !important;
+    z-index: 100;
+  }
+
+  .hand-area.has-selection .card-wrapper:not(.is-selected) {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(150px) scale(0.5);
+  }
+
+  /* --- 卡片本體設計 --- */
+  .card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .card.is-flipped { transform: rotateY(180deg); }
+
+  .card__face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 15px 35px rgba(0, 34, 102, 0.15);
+    overflow: hidden;
+    border: 1px solid rgba(0, 51, 153, 0.1);
+  }
+
+  /* 正面設計：增加裝飾元素 */
+  .card__face--front {
+    background: var(--if-blue);
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 0%, transparent 40%),
+      linear-gradient(135deg, var(--if-blue) 0%, var(--if-blue-dark) 100%);
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 模擬卡片角落的裝飾字樣 */
+  .card__face--front::before {
+    content: "IF OFFICE";
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 2px;
+  }
+
+  .card__face--front::after {
+    content: "IF";
+    font-family: 'Cinzel', serif;
+    font-size: 4rem;
+    color: white;
+    font-weight: 700;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+
+  /* 背面設計：簡潔俐落 */
+  .card__face--back {
+    background: white;
+    transform: rotateY(180deg);
+    padding: 18px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+  }
+
+  .back-image {
+    width: 100%;
+    height: 130px;
+    border-radius: 4px;
+    object-fit: cover;
+    margin-bottom: 20px;
+    filter: grayscale(20%); /* 增加一點藝術冷調 */
+    transition: 0.3s;
+  }
+
+  .card-info-container {
+    text-align: left; /* 改為左對齊更有專業感 */
+    position: relative;
+  }
+
+  .card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--if-blue-dark);
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+    border-left: 3px solid var(--if-blue);
+    padding-left: 10px;
+  }
+
+  .card-desc {
+    font-size: 0.85rem;
+    color: #555;
+    line-height: 1.7;
+    margin-top: 15px;
+  }
+
+  /* --- 下方按鈕 --- */
+  .controls { margin-top: 30px; }
+
+  .btn-restart {
+    padding: 12px 45px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    background: var(--white);
+    border: 1px solid var(--if-blue);
+    color: var(--if-blue);
+    border-radius: 0; /* 改為方角更顯俐落 */
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 4px 4px 0px var(--if-blue);
+  }
+
+  .btn-restart:hover {
+    background: var(--if-blue);
+    color: white;
+    box-shadow: 0px 0px 0px var(--if-blue);
+    transform: translate(2px, 2px);
+  }
+
+  /* 手機版優化 */
+  @media (max-width: 480px) {
+    .brand-title { font-size: 1.8rem; }
+    
+    .card-wrapper {
+      width: 170px; 
+      height: 270px;
+      bottom: 60px;
+    }
+    
+    .card-wrapper--1 { transform: translateX(-80px) rotate(-10deg); }
+    .card-wrapper--2 { transform: translateX(0) rotate(0deg) translateY(-20px); }
+    .card-wrapper--3 { transform: translateX(80px) rotate(10deg); }
+
+    .back-image { height: 100px; margin-bottom: 12px; }
+    .card-title { font-size: 1rem; }
+    .card-desc { font-size: 0.75rem; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="brand-header">
+  <h1 class="brand-title">IF OFFICE</h1>
+  <div class="brand-subtitle">MOONSHINE MASTER CLASS</div>
+</div>
+
+<div class="hand-area" id="handArea">
+  <div class="card-wrapper card-wrapper--1" onclick="drawCard(this)">
+    <div class="card"><div class="card__face card__face--front"></div><div class="card__face card__face--back"></div></div>
+  </div>
+  <div class="card-wrapper card-wrapper--2" onclick="drawCard(this)">
+    <div class="card"><div class="card__face card__face--front"></div><div class="card__face card__face--back"></div></div>
+  </div>
+  <div class="card-wrapper card-wrapper--3" onclick="drawCard(this)">
+    <div class="card"><div class="card__face card__face--front"></div><div class="card__face card__face--back"></div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="btn-restart" onclick="resetGame()">RESTART</button>
+</div>
+
+<script>
+  // 保持你原本的內容數據
+  const cardPool = [
+    { img: "https://i.postimg.cc/0QM3XfMn/行政院通勤月票_2.jpg", title: "TPASS 通勤月票", desc: "以圓圈象徵路網連結，為通勤族打造高辨識度的交通整合識別系統。" },
+    { img: "https://i.postimg.cc/rm56FjVG/71876057-2432118573542188-5975347566655569920-n.png", title: "繼光香香雞", desc: "老字號品牌的華麗轉身。透過鮮明配色與活潑插畫，將品牌提升至國際視野。" },
+    { img: "https://i.postimg.cc/TYV8XC7X/DRAFT_LAND_3.jpg", title: "DRAFT LAND", desc: "極簡卻充滿力度的字體設計，精準傳達『汲飲式雞尾酒』風格，定義亞洲酒吧潮流美學。" },
+    { img: "https://i.postimg.cc/4dP55Hwj/1767348827458.jpg", title: "vacanza", desc: "以『飾品是生活的假期』為核心，打造精緻且具時尚感的視覺語彙，提升品牌質感。" },
+    { img: "https://i.postimg.cc/J4WgKj1b/嘉義市城市形象識別_3.jpg", title: "嘉義市品牌識別", desc: "挖掘城市深度 DNA。以經典字型結構融合城市符號，打造最具當代感的地方印象。" },
+    { img: "https://i.postimg.cc/DyTvsWHp/馬祖國際藝術島_1.jpg", title: "馬祖國際藝術島", desc: "將風、海與記憶轉化為流動線條，以設計力縫合自然與藝術，展現文化底蘊。" },
+    { img: "https://i.postimg.cc/FKKw3m9H/康軒國小教科書_1.jpg", title: "康軒國小教科書", desc: "美感教育從課本開始。透過圖表的優化與溫潤插畫，讓學習過程成為視覺饗宴。" },
+    { img: "https://i.postimg.cc/3R46fB4p/永心鳳茶.jpg", title: "永心鳳茶", desc: "完美揉合台灣傳統茶文化與摩登美學，讓喝茶成為一種優雅的當代生活儀式。" },
+    { img: "https://i.postimg.cc/vZbJ8fkR/TAIWAN_PAVILION_1.jpg", title: "TAIWAN PAVILION", desc: "以宏觀視角梳理台灣文化脈絡，在展覽視覺中建構專屬台灣的色彩與構圖力度。" },
+    { img: "https://i.postimg.cc/R002K9Mv/鄭問故宮大展.jpg", title: "鄭問故宮大展", desc: "以磅礡的版面設計，精準捕捉鄭問老師作品中驚人的藝術張力與俠義精神。" },
+    { img: "https://i.postimg.cc/65NSzC9Y/全家便利商店4.jpg", title: "全家 麵包包裝", desc: "打破超商包裝廉價感。透過明亮的色區劃分提升產品美味感與架上吸引力。" },
+    { img: "https://i.postimg.cc/PrQtMXkN/全家便利商店_1.jpg", title: "Let’s Café", desc: "以極致深藍定義咖啡品質，讓便利商店咖啡具備生活儀式感與高品質象徵。" }
+  ];
+
+  let canDraw = true;
+
+  function drawCard(wrapper) {
+    if (!canDraw || wrapper.classList.contains('is-selected')) return;
+    canDraw = false;
+
+    const handArea = document.getElementById('handArea');
+    const card = wrapper.querySelector('.card');
+    const backFace = wrapper.querySelector('.card__face--back');
+
+    const data = cardPool[Math.floor(Math.random() * cardPool.length)];
+    
+    backFace.innerHTML = `
+      <img src="${data.img}" class="back-image" alt="${data.title}">
+      <div class="card-info-container">
+        <div class="card-title">${data.title}</div>
+        <div class="card-desc">${data.desc}</div>
+      </div>
+    `;
+
+    handArea.classList.add('has-selection');
+    wrapper.classList.add('is-selected');
+
+    setTimeout(() => {
+      card.classList.add('is-flipped');
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#003399', '#ffffff', '#ffd700']
+      });
+    }, 600);
+  }
+
+  function resetGame() {
+    const handArea = document.getElementById('handArea');
+    const wrappers = document.querySelectorAll('.card-wrapper');
+    const cards = document.querySelectorAll('.card');
+
+    cards.forEach(c => c.classList.remove('is-flipped'));
+    
+    setTimeout(() => {
+      wrappers.forEach(w => w.classList.remove('is-selected'));
+      handArea.classList.remove('has-selection');
+      canDraw = true;
+    }, 400);
+  }
+</script>
+
+</body>
+</html>
+    
+  </body>
+  
+</html>
